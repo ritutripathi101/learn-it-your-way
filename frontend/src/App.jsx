@@ -1,8 +1,10 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import mermaid from 'mermaid'
+
+mermaid.initialize({ startOnLoad: false })
 
 function FlashCard({ question, answer }) {
   const [flipped, setFlipped] = useState(false)
-
   return (
     <div
       onClick={() => setFlipped(!flipped)}
@@ -12,15 +14,9 @@ function FlashCard({ question, answer }) {
         borderRadius: '10px',
         marginBottom: '0.75rem',
         cursor: 'pointer',
-        minHeight: '60px',
-        transition: 'background 0.2s ease',
       }}
     >
-      {!flipped ? (
-        <p><strong>Q:</strong> {question}</p>
-      ) : (
-        <p><strong>A:</strong> {answer}</p>
-      )}
+      {!flipped ? <p><strong>Q:</strong> {question}</p> : <p><strong>A:</strong> {answer}</p>}
       <p style={{ fontSize: '0.75rem', color: '#888', marginTop: '0.5rem' }}>
         {flipped ? 'Click to see question' : 'Click to reveal answer'}
       </p>
@@ -28,7 +24,24 @@ function FlashCard({ question, answer }) {
   )
 }
 
+function ConceptMap({ diagram }) {
+  const ref = useRef(null)
+
+  useEffect(() => {
+    if (diagram && ref.current) {
+      mermaid.render('concept-map-svg', diagram).then(({ svg }) => {
+        ref.current.innerHTML = svg
+      }).catch((err) => {
+        ref.current.innerHTML = `<p style="color:red">Couldn't render diagram: ${err.message}</p>`
+      })
+    }
+  }, [diagram])
+
+  return <div ref={ref} style={{ overflowX: 'auto' }} />
+}
+
 function App() {
+  const [mode, setMode] = useState('flashcards') // 'flashcards' or 'map'
   const [result, setResult] = useState(null)
   const [loading, setLoading] = useState(false)
 
@@ -42,8 +55,10 @@ function App() {
     const formData = new FormData()
     formData.append('file', file)
 
+    const endpoint = mode === 'flashcards' ? '/upload' : '/upload-map'
+
     try {
-      const response = await fetch('http://localhost:8000/upload', {
+      const response = await fetch(`http://localhost:8000${endpoint}`, {
         method: 'POST',
         body: formData,
       })
@@ -59,11 +74,26 @@ function App() {
   return (
     <div style={{ padding: '2rem', fontFamily: 'sans-serif', maxWidth: '700px', margin: '0 auto' }}>
       <h1>Learn It Your Way</h1>
-      <p>Upload a lecture slide deck (PDF or PPTX) to generate flashcards.</p>
+      <p>Upload a lecture slide deck (PDF or PPTX) and choose how to study it.</p>
+
+      <div style={{ marginBottom: '1rem' }}>
+        <button
+          onClick={() => setMode('flashcards')}
+          style={{ fontWeight: mode === 'flashcards' ? 'bold' : 'normal', marginRight: '0.5rem' }}
+        >
+          Flashcards
+        </button>
+        <button
+          onClick={() => setMode('map')}
+          style={{ fontWeight: mode === 'map' ? 'bold' : 'normal' }}
+        >
+          Visual Map
+        </button>
+      </div>
 
       <input type="file" onChange={handleFileChange} accept=".pdf,.pptx" />
 
-      {loading && <p>Uploading and generating flashcards...</p>}
+      {loading && <p>Uploading and generating {mode === 'flashcards' ? 'flashcards' : 'concept map'}...</p>}
 
       {result && (
         <div style={{ marginTop: '1rem' }}>
@@ -71,12 +101,17 @@ function App() {
 
           {result.error ? (
             <p style={{ color: 'red' }}>{result.error}</p>
-          ) : (
+          ) : mode === 'flashcards' ? (
             <div>
               <h2>Flashcards ({result.flashcards.length})</h2>
               {result.flashcards.map((card, index) => (
                 <FlashCard key={index} question={card.question} answer={card.answer} />
               ))}
+            </div>
+          ) : (
+            <div>
+              <h2>Concept Map</h2>
+              <ConceptMap diagram={result.diagram} />
             </div>
           )}
         </div>
