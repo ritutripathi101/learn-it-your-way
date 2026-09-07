@@ -45,12 +45,17 @@ def extract_text_from_pptx(file_bytes):
     return text
 
 def generate_flashcards(text):
-    prompt = f"""You are helping a student study. Based on the lecture content below,
-generate 5 to 8 flashcards covering the most important concepts.
+    prompt = f"""You are an expert study coach helping a student prepare for an exam.
+Based on the lecture content below, generate 6 to 10 flashcards that test real understanding —
+not just definitions. Include a mix of:
+- Concept explanation questions ("Why does X happen?", "What is the difference between X and Y?")
+- Application questions ("What would happen if...?")
+- A few straightforward recall questions for key terms/definitions
 
-Respond ONLY with valid JSON in this exact format, no other text:
+Avoid vague or overly broad questions. Each answer should be concise (1-3 sentences), clear, and accurate based only on the content given.
+
+Respond ONLY with valid JSON in this exact format, no other text, no markdown formatting:
 [
-  {{"question": "...", "answer": "..."}},
   {{"question": "...", "answer": "..."}}
 ]
 
@@ -60,7 +65,6 @@ Lecture content:
     response = model.generate_content(prompt)
     raw = response.text.strip()
 
-    # Clean up in case the model wraps it in markdown code fences
     if raw.startswith("```"):
         raw = raw.strip("`")
         if raw.startswith("json"):
