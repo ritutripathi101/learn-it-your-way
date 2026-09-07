@@ -1,8 +1,17 @@
+import os
+import json
+from dotenv import load_dotenv
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pypdf import PdfReader
 from pptx import Presentation
+import google.generativeai as genai
 import io
+
+load_dotenv()  # reads your .env file
+
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+model = genai.GenerativeModel("gemini-flash-latest")
 
 app = FastAPI()
 
@@ -35,6 +44,30 @@ def extract_text_from_pptx(file_bytes):
                         text += run.text + " "
     return text
 
+def generate_flashcards(text):
+    prompt = f"""You are helping a student study. Based on the lecture content below,
+generate 5 to 8 flashcards covering the most important concepts.
+
+Respond ONLY with valid JSON in this exact format, no other text:
+[
+  {{"question": "...", "answer": "..."}},
+  {{"question": "...", "answer": "..."}}
+]
+
+Lecture content:
+{text[:8000]}
+"""
+    response = model.generate_content(prompt)
+    raw = response.text.strip()
+
+    # Clean up in case the model wraps it in markdown code fences
+    if raw.startswith("```"):
+        raw = raw.strip("`")
+        if raw.startswith("json"):
+            raw = raw[4:]
+
+    return json.loads(raw)
+
 @app.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
     contents = await file.read()
@@ -47,8 +80,15 @@ async def upload_file(file: UploadFile = File(...)):
     else:
         return {"error": "Unsupported file type. Please upload a PDF or PPTX."}
 
+    if not extracted_text.strip():
+        return {"error": "No text could be extracted from this file."}
+
+    try:
+        flashcards = generate_flashcards(extracted_text)
+    except Exception as e:
+        return {"error": f"Failed to generate flashcards: {str(e)}"}
+
     return {
         "filename": file.filename,
-        "extracted_text": extracted_text[:2000],  # capped for now so responses aren't huge
-        "total_characters": len(extracted_text)
+        "flashcards": flashcards
     }
