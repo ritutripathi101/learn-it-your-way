@@ -31,11 +31,11 @@ function App() {
   return (
     <div style={{ padding: '2rem', fontFamily: 'sans-serif' }}>
       <h1>Learn It Your Way</h1>
-      <p>Upload a lecture slide deck (PDF or PPTX) to extract its content.</p>
+      <p>Upload a lecture slide deck (PDF or PPTX) to generate flashcards.</p>
 
       <input type="file" onChange={handleFileChange} accept=".pdf,.pptx" />
 
-      {loading && <p>Uploading and extracting text...</p>}
+      {loading && <p>Uploading and generating flashcards...</p>}
 
       {result && (
         <div style={{ marginTop: '1rem' }}>
@@ -44,18 +44,20 @@ function App() {
           {result.error ? (
             <p style={{ color: 'red' }}>{result.error}</p>
           ) : (
-            <>
-              <p><strong>Total characters extracted:</strong> {result.total_characters}</p>
-              <pre style={{
-                whiteSpace: 'pre-wrap',
-                maxWidth: '600px',
-                background: '#f4f4f4',
-                padding: '1rem',
-                borderRadius: '8px'
-              }}>
-                {result.extracted_text}
-              </pre>
-            </>
+            <div>
+              <h2>Flashcards ({result.flashcards.length})</h2>
+              {result.flashcards.map((card, index) => (
+                <div key={index} style={{
+                  background: '#f4f4f4',
+                  padding: '1rem',
+                  borderRadius: '8px',
+                  marginBottom: '0.75rem'
+                }}>
+                  <p><strong>Q:</strong> {card.question}</p>
+                  <p><strong>A:</strong> {card.answer}</p>
+                </div>
+              ))}
+            </div>
           )}
         </div>
       )}
