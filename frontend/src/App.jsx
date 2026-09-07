@@ -1,5 +1,33 @@
 import { useState } from 'react'
 
+function FlashCard({ question, answer }) {
+  const [flipped, setFlipped] = useState(false)
+
+  return (
+    <div
+      onClick={() => setFlipped(!flipped)}
+      style={{
+        background: flipped ? '#dff5e1' : '#f4f4f4',
+        padding: '1.25rem',
+        borderRadius: '10px',
+        marginBottom: '0.75rem',
+        cursor: 'pointer',
+        minHeight: '60px',
+        transition: 'background 0.2s ease',
+      }}
+    >
+      {!flipped ? (
+        <p><strong>Q:</strong> {question}</p>
+      ) : (
+        <p><strong>A:</strong> {answer}</p>
+      )}
+      <p style={{ fontSize: '0.75rem', color: '#888', marginTop: '0.5rem' }}>
+        {flipped ? 'Click to see question' : 'Click to reveal answer'}
+      </p>
+    </div>
+  )
+}
+
 function App() {
   const [result, setResult] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -29,7 +57,7 @@ function App() {
   }
 
   return (
-    <div style={{ padding: '2rem', fontFamily: 'sans-serif' }}>
+    <div style={{ padding: '2rem', fontFamily: 'sans-serif', maxWidth: '700px', margin: '0 auto' }}>
       <h1>Learn It Your Way</h1>
       <p>Upload a lecture slide deck (PDF or PPTX) to generate flashcards.</p>
 
@@ -47,15 +75,7 @@ function App() {
             <div>
               <h2>Flashcards ({result.flashcards.length})</h2>
               {result.flashcards.map((card, index) => (
-                <div key={index} style={{
-                  background: '#f4f4f4',
-                  padding: '1rem',
-                  borderRadius: '8px',
-                  marginBottom: '0.75rem'
-                }}>
-                  <p><strong>Q:</strong> {card.question}</p>
-                  <p><strong>A:</strong> {card.answer}</p>
-                </div>
+                <FlashCard key={index} question={card.question} answer={card.answer} />
               ))}
             </div>
           )}
