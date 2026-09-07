@@ -72,25 +72,36 @@ Lecture content:
 
     return json.loads(raw)
 
+MAX_FILE_SIZE_MB = 20
+
 @app.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
-    contents = await file.read()
     filename = file.filename.lower()
 
-    if filename.endswith(".pdf"):
-        extracted_text = extract_text_from_pdf(contents)
-    elif filename.endswith(".pptx"):
-        extracted_text = extract_text_from_pptx(contents)
-    else:
-        return {"error": "Unsupported file type. Please upload a PDF or PPTX."}
+    if not (filename.endswith(".pdf") or filename.endswith(".pptx")):
+        return {"error": "Unsupported file type. Please upload a PDF or PPTX file."}
+
+    contents = await file.read()
+
+    size_mb = len(contents) / (1024 * 1024)
+    if size_mb > MAX_FILE_SIZE_MB:
+        return {"error": f"File is too large ({size_mb:.1f}MB). Please upload a file under {MAX_FILE_SIZE_MB}MB."}
+
+    try:
+        if filename.endswith(".pdf"):
+            extracted_text = extract_text_from_pdf(contents)
+        else:
+            extracted_text = extract_text_from_pptx(contents)
+    except Exception as e:
+        return {"error": f"Couldn't read this file — it may be corrupted or in an unsupported format. ({str(e)})"}
 
     if not extracted_text.strip():
-        return {"error": "No text could be extracted from this file."}
+        return {"error": "No readable text was found in this file. It may be image-based slides with no selectable text."}
 
     try:
         flashcards = generate_flashcards(extracted_text)
     except Exception as e:
-        return {"error": f"Failed to generate flashcards: {str(e)}"}
+        return {"error": f"Flashcard generation failed: {str(e)}"}
 
     return {
         "filename": file.filename,
