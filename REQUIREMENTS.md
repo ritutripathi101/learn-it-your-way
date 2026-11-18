@@ -252,7 +252,7 @@ processes; support for more file types; lecture videos as input.
 - **Requirements-based testing:** every requirement in Sections 6.1 to 6.5 that the backend implements has at least one test.
 - **Partition testing:** inputs are split into equivalence partitions, and at least one test is chosen from each. For example, for file size: 0 bytes, normal size, exactly 20 MB (boundary), and just over 20 MB.
 - **Guideline-based testing:** choose inputs that force every error message, test empty input and single-item input, and repeat the same input to check the cache (FR-10) and the daily limit (FR-11).
-- **Interface testing (components):** test the parameter and procedural interfaces between layers. Make the called component fail (Gemini raises a 429 error), pass missing values (no file, empty password), and check for interface misunderstanding (the AI returns malformed JSON).
+- **Interface testing (components):** test the parameter and procedural interfaces between layers. Make the called component fail (Gemini raises a 429 error), pass missing values (no file, empty password), and check for interface misunderstanding (the AI returns malformed or unreadable output instead of the tagged text format).
 - **Automated tests:** each test has a setup part, a call part, and an assertion part that compares the actual result with a specific expected result. Run them all as a regression suite after every change.
 
 ### A.3 Traceability matrix (requirement to test)
@@ -261,7 +261,7 @@ processes; support for more file types; lecture videos as input.
 | --- | --- | --- |
 | FR-1, FR-7, NFR-3 | File validation: valid PDF/PPTX, wrong type, size boundary | Upload endpoint rejects bad files without calling Gemini |
 | FR-2, DR-1, DR-2 | Text extraction: known text, multiple slides in order, empty file | |
-| FR-3, FR-4, NFR-2 | AI reply parsing: valid output, extra text around JSON, malformed output; concept map filtering | `/study/generate` with mocked Gemini: success, 429 error, bad output |
+| FR-3, FR-4, NFR-2 | AI reply parsing: valid output, extra text around the tagged output, malformed output; concept map filtering | `/study/generate` with mocked Gemini: success, 429 error, bad output |
 | FR-8, FR-14, NFR-4 | Password hashing and verification; login token; rate limiter | Register and log in through the API with a temporary database; duplicate email; study route without a token is refused |
 | FR-9 | | Save and list a study set; another user cannot see or delete it |
 | FR-10, FR-11, NFR-8 | Daily limit counter: under, at, and over the limit | Second identical upload uses the cache (mock called once); failed generation is not counted |
