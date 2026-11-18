@@ -32,18 +32,33 @@ frontend/
 
 ## Run locally
 
-You need Python 3.9 or newer, Node.js, and a Gemini API key. Every teammate should use their own key.
+You need Python 3.10 or newer (with hashlib.scrypt; macOS's built-in /usr/bin/python3 will not work), Node.js, and a Gemini API key. Every teammate should use their own key.
 
 ### 1. Backend
 
-From the `backend` folder:
+**macOS (zsh/bash)**
 
-```sh
+```bash
+cd learn-it-your-way/backend
+python3 -c "import hashlib; print(hasattr(hashlib, 'scrypt'))"   # must print True
 python3 -m venv venv
-source venv/bin/activate        # Windows: venv\Scripts\activate
-pip install -r requirements.txt
-cp .env.example .env            # Windows: copy .env.example .env
+source venv/bin/activate
+python -m pip install -r requirements.txt
+cp .env.example .env
 ```
+
+**Windows (PowerShell)**
+
+```powershell
+cd learn-it-your-way\backend
+py -3 -c "import hashlib; print(hasattr(hashlib, 'scrypt'))"     # must print True
+py -3 -m venv venv
+.\venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+Copy-Item .env.example .env
+```
+
+If PowerShell blocks the activation script, run this once: `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`. In Command Prompt, use `venv\Scripts\activate.bat` instead.
 
 Open `.env` and set `GEMINI_API_KEY`. Then start the server:
 
@@ -103,14 +118,15 @@ All study routes need the header `Authorization: Bearer <token>`.
 
 ## Tests
 
-From `backend` with the virtual environment active:
+From `backend/` with the virtual environment active (same commands on macOS and Windows):
 
-    pip install -r requirements.txt
-    python -m pytest tests -v                      # all tests
-    python -m pytest tests/test_unit.py -v         # unit tests
-    python -m pytest tests/test_component.py -v    # component tests
+```sh
+python -m pytest tests/test_unit.py -v         # unit tests
+python -m pytest tests/test_component.py -v    # component tests
+python -m pytest tests -v                      # full suite
+```
 
-Tests never call the real Gemini API and never touch learn_it.db. Gemini is mocked and each test uses a temporary database.
+Tests need no `.env` file, API key or network access. Gemini is mocked and each test uses a temporary database, so `learn_it.db` is never touched. See `backend/TESTING.md` for details.
 
 ## Troubleshooting
 
@@ -122,6 +138,12 @@ Tests never call the real Gemini API and never touch learn_it.db. Gemini is mock
 | "Model not found" | Fix `GEMINI_MODEL` in `.env`. |
 | "Temporarily busy" | The free tier has per-minute and daily limits. Wait a moment and retry. |
 | Math shows as raw `$...$` | Run `npm install` so KaTeX is installed, then restart `npm run dev`. |
+
+## Team contributions
+
+- **Topendra Singh:** frontend and UI design (React, flip cards, quiz and concept-map views, RichText/KaTeX)
+- **Ritu Tripathi:** backend, AI pipeline, database and security
+- **Both:** requirements, testing, documentation
 
 ## Limitations
 
