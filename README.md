@@ -105,15 +105,12 @@ All study routes need the header `Authorization: Bearer <token>`.
 
 From `backend` with the virtual environment active:
 
-```sh
-python tests/test_core.py
-```
+    pip install -r requirements.txt
+    python -m pytest tests -v                      # all tests
+    python -m pytest tests/test_unit.py -v         # unit tests
+    python -m pytest tests/test_component.py -v    # component tests
 
-## Deploying
-
-- SQLite needs a **persistent disk**. Hosts with temporary storage erase accounts and saved sets on restart. For more than one server instance, move `database.py` to a shared database such as Postgres.
-- The rate limiter is kept in memory per server process.
-- Set `JWT_SECRET`, `GEMINI_API_KEY`, `FRONTEND_ORIGINS` and `VITE_API_URL` for your deployment.
+Tests never call the real Gemini API and never touch learn_it.db. Gemini is mocked and each test uses a temporary database.
 
 ## Troubleshooting
 
