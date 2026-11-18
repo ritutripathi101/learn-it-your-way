@@ -14,7 +14,7 @@ Requirement IDs (FR-, NFR-, DR-, US-) refer to `REQUIREMENTS.md`. The test desig
 | Older tests written before Assignment 4 | `tests/test_core.py` | 6 | 6 pass |
 | **Total** | | **102** | **102 pass, 0 fail** |
 
-All results are from `backend/venv`, using Python 3.13.11 with OpenSSL 3.0.18 on macOS. Three real bugs were found and fixed with the team's approval (B1–B3, [Section 9](#9-bugs-requirement-discrepancies-remaining-failures-and-limitations)). Six places where `REQUIREMENTS.md` no longer matches the code are listed for the team to decide on.
+All results are from `backend/venv`, using Python 3.13.11 with OpenSSL 3.0.18 on macOS. Three real bugs were found and fixed with the team's approval (B1–B3, [Section 9](#9-bugs-requirement-discrepancies-remaining-failures-and-limitations)). Six places where `REQUIREMENTS.md` or the README no longer matched the code were found and have been resolved (R1–R6, Section 9.2).
 
 | Unit / component | Test class | Tests | Normal / success | Edge / boundary | Invalid / failure |
 |---|---|---|---|---|---|
@@ -316,18 +316,18 @@ If Gemini wrote anything after the map, such as "Hope this helps!" or a closing 
 - `card_count=0` means "use the suggested count".
 - The cache is shared by all users who upload the same file with the same options. This is intended, to save AI usage (NFR-8).
 
-### 9.2 Places where REQUIREMENTS.md no longer matches the code (for the team to decide)
+### 9.2 Places where REQUIREMENTS.md no longer matched the code (resolved)
 
-These were found while mapping tests to requirements. Neither the code nor `REQUIREMENTS.md` was changed. The team should decide which one to update.
+These were found while mapping tests to requirements. The code was not changed for them. Instead, the team updated `REQUIREMENTS.md` (v1.2) and the README to match the code.
 
-| # | Requirement | Document says | Code does |
-|---|---|---|---|
-| R1 | FR-4 | Concept map comes from a `/upload-map` endpoint | `/upload-map` was removed. The map comes from `POST /study/generate` together with flashcards and the quiz (one AI call). |
-| R2 | FR-3, Section 7 | Each flashcard has a question, an answer **and a question type** | Flashcards have `question`, `answer` and `source` (page). The prompt asks for mixed question types, but no type field is returned. |
-| R3 | Glossary | Model `gemini-flash-latest` | `GEMINI_MODEL` defaults to `gemini-3.8-flash`, with fallback `gemini-3.6-flash`. Both can be changed in `.env`. |
-| R4 | A.2, A.3 | "Malformed JSON", "extra text around JSON" | The AI replies in a tagged text format, not JSON, so LaTeX backslashes survive. The equivalent cases are tested (U3.6, U3.8–U3.14, C1.5). |
-| R5 | Appendix B | Real database files are `learn_it.db` and `learnit.sqlite3` | `learnit.sqlite3` was an old, unused database and has been deleted. Only `learn_it.db` is used. |
-| R6 | NFR-6 | Installs with the commands in the README | The README (not yet committed) says "Python 3.9 or newer", but 3.10+ with OpenSSL is needed (B1). It also refers to a `.env.example` file that does not exist. |
+| # | Requirement | Document said | Code does | Status |
+|---|---|---|---|---|
+| R1 | FR-4 | Concept map comes from a `/upload-map` endpoint | `/upload-map` was removed. The map comes from `POST /study/generate` together with flashcards and the quiz (one AI call). | Resolved: REQUIREMENTS.md updated to v1.2 |
+| R2 | FR-3, Section 7 | Each flashcard has a question, an answer **and a question type** | Flashcards have `question`, `answer` and `source` (page). The prompt asks for mixed question types, but no type field is returned. | Resolved: REQUIREMENTS.md updated to v1.2 |
+| R3 | Glossary | Model `gemini-flash-latest` | `GEMINI_MODEL` defaults to `gemini-3.8-flash`, with fallback `gemini-3.6-flash`. Both can be changed in `.env`. | Resolved: REQUIREMENTS.md updated to v1.2 |
+| R4 | A.2, A.3 | "Malformed JSON", "extra text around JSON" | The AI replies in a tagged text format, not JSON, so LaTeX backslashes survive. The equivalent cases are tested (U3.6, U3.8–U3.14, C1.5). | Resolved: REQUIREMENTS.md updated to v1.2 (A.2/A.3 wording fixed in 176b505) |
+| R5 | Appendix B | Real database files are `learn_it.db` and `learnit.sqlite3` | `learnit.sqlite3` was an old, unused database and has been deleted. Only `learn_it.db` is used. | Resolved: REQUIREMENTS.md updated to v1.2 |
+| R6 | NFR-6 | Installs with the commands in the README | The README said "Python 3.9 or newer", but 3.10+ with OpenSSL is needed (B1). It also referred to a `.env.example` file that did not exist. | Resolved: README now requires Python 3.10+ and backend/.env.example was added (b021a9e) |
 
 ### 9.3 Remaining failures
 
