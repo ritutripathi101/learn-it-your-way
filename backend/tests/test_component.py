@@ -112,7 +112,7 @@ def upload(client, headers, data, name="lecture.pdf", **form):
                        data={k: str(v).lower() if isinstance(v, bool) else str(v) for k, v in form.items()})
 
 
-# =========================================================================== Component A: accounts
+# =========================================================================== Component 2: accounts
 class TestAccountsComponent:
     def test_success_register_then_login_then_me(self, client, count_rows):
         """Covers FR-8, NFR-4."""
@@ -173,7 +173,7 @@ class TestAccountsComponent:
         assert [client.post("/auth/login", json=body).status_code for _ in range(3)] == [200, 200, 429]
 
 
-# =========================================================================== Component B: generation pipeline
+# =========================================================================== Component 1: upload pipeline
 class TestGenerationComponent:
     def test_success_pdf_text_flows_through_to_ai_and_back(self, client, auth, gemini, make_pdf, count_rows):
         """Covers FR-1, FR-2, FR-3, FR-4, DR-1."""
@@ -271,7 +271,7 @@ class TestGenerationComponent:
         assert gemini.requests == []
 
 
-# =========================================================================== Component C: saved sets
+# =========================================================================== Additional: saved sets
 SET = {
     "filename": "bio.pdf",
     "flashcards": [{"question": "What is ATP?", "answer": "Energy currency.", "source": 1}],

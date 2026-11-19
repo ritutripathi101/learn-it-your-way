@@ -26,7 +26,7 @@ import security
 import study_ai
 
 
-# =========================================================================== Unit 1: password hashing
+# =========================================================================== Unit 4: password hashing
 class TestPasswordHashing:
     def test_round_trip_normal_password(self):
         """Covers FR-8, NFR-4."""
@@ -107,7 +107,7 @@ class TestPasswordHashing:
         assert security.verify_password("tamper-test-1", "$".join(parts)) is False
 
 
-# =========================================================================== Unit 2: create_user
+# =========================================================================== Additional: create_user
 class TestCreateUser:
     def test_normal_creates_user_and_returns_id(self, isolated_db):
         """Covers FR-8."""
@@ -151,7 +151,7 @@ class TestCreateUser:
         assert count_rows("users") == 0
 
 
-# =========================================================================== Unit 3: upload validation
+# =========================================================================== Unit 1: file validation
 class FakeUpload:
     """Stands in for FastAPI's UploadFile: only .filename and async .read(size) are used."""
 
@@ -253,7 +253,7 @@ class TestUploadValidation:
         assert err.value.status_code == 400 and "couldn't read this file" in err.value.detail
 
 
-# =========================================================================== Unit 4: text extraction
+# =========================================================================== Unit 2: text extraction
 class TestTextExtraction:
     def test_normal_pdf_text_per_page(self, make_pdf):
         """Covers FR-2, DR-1."""
@@ -297,7 +297,7 @@ class TestTextExtraction:
             study_ai.read_lecture(extension, b"this is definitely not a document", True)
 
 
-# =========================================================================== Unit 5: parsing the Gemini reply
+# =========================================================================== Unit 3: AI response parsing
 GOOD_REPLY = """=== CARD | p=3
 Q: What does chlorophyll absorb?
 A: Mostly red and blue light.
@@ -385,7 +385,7 @@ class TestParseResponse:
         assert study_ai.parse_response(reply) == {"flashcards": [], "quiz": [], "diagram": ""}
 
 
-# =========================================================================== Unit 6: daily generation limit
+# =========================================================================== Additional: daily generation limit
 class TestDailyLimit:
     @pytest.fixture
     def user_id(self):

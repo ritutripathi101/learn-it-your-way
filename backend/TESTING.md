@@ -303,7 +303,7 @@ At the time, 32 of the 96 tests failed or errored, all for this one reason.
 - `security.py` now runs `_require_scrypt()` at import, which stops with a clear message on an unsuitable Python. This was checked with `/usr/bin/python3`.
 - `verify_password` now catches only `ValueError`/`TypeError` (malformed hashes), so real server errors are no longer hidden.
 
-Tests: U4.13–U4.15.
+Tests: U4.14, U4.15.
 
 **B2 (low): `create_user` reported any database constraint error as "email already exists".**
 A `NOT NULL` violation returned `None`, which the API would have turned into a misleading 409. Requests could not trigger it, because Pydantic requires both fields. *Fix:* `None` is returned only for `UNIQUE constraint failed: users.email`; other errors are raised. Tests: A.5, A.6, C2.2.
