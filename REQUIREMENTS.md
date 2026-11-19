@@ -170,7 +170,7 @@ are implemented in the current version.
 | FR-11 | limit new study packs per user per 24 hours (`GENERATIONS_PER_DAY`, default 15) and return a clear message when the limit is reached. | NFR-8 |
 | FR-12 | let the user choose 4 to 50 flashcards and 3 to 30 quiz questions, or Auto generate, where the counts follow the lecture length. Out-of-range counts are rejected or clamped. | UR-2, UR-7 |
 | FR-13 | show the correct answer and an explanation for each quiz question after checking, allow unlimited retries, and track tries and best score. | UR-7 |
-| FR-14 | limit sign-in and sign-up attempts per IP address (`LOGIN_ATTEMPTS_PER_15_MIN`, default 15 per 15 minutes). | NFR-4 |
+| FR-14 | limit sign-in and sign-up attempts per IP address (`LOGIN_ATTEMPTS_PER_15_MIN`, default 15 per 15 minutes, counted separately for sign-in and sign-up). | NFR-4 |
 | FR-15 | report file length and suggested counts without using the AI (`POST /study/inspect`). | UR-2 |
 
 ### 6.5 Domain requirements

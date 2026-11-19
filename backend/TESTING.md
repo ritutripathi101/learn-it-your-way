@@ -129,7 +129,7 @@ Each test asserts specific expected values (status codes, exact strings, row cou
 | U4.2 | `test_salt_comes_from_os_urandom` | Normal (mock): the salt is used and stored | `os.urandom` mocked to return zero bytes | Two hashes identical; salt field is `base64(16 zero bytes)` | As expected | Pass | NFR-4 |
 | U4.3 | `test_two_hashes_of_same_password_differ` | Normal: hashes are salted | Same password hashed twice | Hashes differ; both verify | As expected | Pass | NFR-4 |
 | U4.4 | `test_edge_empty_password` | Edge: empty input | `""` | `""` gives `True`; `" "` gives `False` | As expected | Pass | FR-8, NFR-4 |
-| U4.5 | `test_edge_unicode_password` | Edge: non-ASCII | `"pässwörd-🔑-密码"` | `True`; one changed letter gives `False` | As expected | Pass | FR-8, NFR-4 |
+| U4.5 | `test_edge_unicode_password` | Edge: non-ASCII | `"pässwörd-🔑-密码"` | `True`; the same password with two letters changed (`passwOrd-🔑-密码`) gives `False` | As expected | Pass | FR-8, NFR-4 |
 | U4.6 | `test_invalid_wrong_password_rejected` | Invalid: wrong password | Last character changed; all upper case | `False` for both | As expected | Pass | FR-8, NFR-4 |
 | U4.7 | `test_invalid_malformed_stored_hash_returns_false[empty]` | Invalid: malformed stored hash | `""` | `False`, no exception | As expected | Pass | FR-8, NFR-4 |
 | U4.8 | `…[garbage]` | Invalid | `"not-a-hash"` | `False`, no exception | As expected | Pass | FR-8, NFR-4 |
@@ -230,15 +230,17 @@ To check that the tests catch real mistakes, bugs were planted one at a time in 
 
 | Planted bug | Tests that failed |
 |---|---|
-| Daily limit off by one (`used > limit`) | 6 |
+| Daily limit off by one (`used > limit`) | 7 |
 | Failed AI call not refunded | 3 |
-| Size check lets 20 MB + 1 byte through | 1 |
-| `verify_password` always returns `True` | 7 |
+| Size check lets 20 MB + 1 byte through | 2 (U1.4, C1.10) |
+| `verify_password` always returns `True` | 15 |
 | Duplicate quiz choices not rejected | 1 |
-| A user can overwrite another user's saved set | 1 |
+| A user can overwrite another user's saved set | 2 (S.3, O.5) |
 | B1 fix undone (`except Exception` back in `verify_password`) | 1 (U4.14) |
 | B2 fix undone (`create_user` returns `None` for every `IntegrityError`) | 1 (A.6) |
 | B3 fix undone (all lines kept in the Mermaid map) | 2 (U3.6, U3.7) |
+
+The counts include the older tests in `tests/test_core.py` (O.1–O.6) where they also fail: the daily-limit bug also fails `test_daily_limit_refund_and_dedupe`, and the saved-set bug also fails `test_db_and_security`. If `verify_password` returns `True` only in place of the final key comparison (instead of at the top), 8 tests fail.
 
 ---
 
@@ -306,7 +308,7 @@ At the time, 32 of the 96 tests failed or errored, all for this one reason.
 Tests: U4.14, U4.15.
 
 **B2 (low): `create_user` reported any database constraint error as "email already exists".**
-A `NOT NULL` violation returned `None`, which the API would have turned into a misleading 409. Requests could not trigger it, because Pydantic requires both fields. *Fix:* `None` is returned only for `UNIQUE constraint failed: users.email`; other errors are raised. Tests: A.5, A.6, C2.2.
+A `NOT NULL` violation returned `None`, which the API would have turned into a misleading 409. Requests could not trigger it, because Pydantic requires both fields. *Fix:* `None` is returned only for `UNIQUE constraint failed: users.email`; other errors are raised. Tests: A.6 (regression; fails if the fix is undone), with A.5 and C2.2 covering the duplicate-email case.
 
 **B3 (medium): text after the concept map ended up inside the Mermaid code (found by U3.6).**
 If Gemini wrote anything after the map, such as "Hope this helps!" or a closing ` ``` ` followed by a sentence, `sanitize_diagram` kept those lines. That would most likely make Mermaid.js fail to draw the map (FR-6). *Fix:* after the `flowchart` header, only lines that look like Mermaid statements are kept: edges (`-->`, `---`, `-.-`, `==>`, `~~~`), node definitions (`A[…]`, `A(…)`, `A{…}`, `A>…]`), and `subgraph`/`end`/`direction`. Tests: U3.6, U3.7; S.2 and the older `test_parse` still pass.

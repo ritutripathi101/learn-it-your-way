@@ -92,7 +92,7 @@ Open the link it prints (normally http://localhost:5173). If the backend is not 
 | `GENERATIONS_PER_DAY` | New study packs per user per 24 hours. Failed attempts are not counted. | `15` |
 | `MAX_PDF_PAGES` | Page limit for PDFs. | `400` |
 | `AI_TIMEOUT_SECONDS` | Longest wait for the AI step. | `150` |
-| `LOGIN_ATTEMPTS_PER_15_MIN` | Sign-in and sign-up attempts per IP. | `15` |
+| `LOGIN_ATTEMPTS_PER_15_MIN` | Sign-in attempts per IP, and separately sign-up attempts per IP, per 15 minutes. | `15` |
 
 Generate a secret with: `python -c "import secrets; print(secrets.token_urlsafe(48))"`
 
